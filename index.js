@@ -33,8 +33,8 @@ app.use(
     cookie: {
       maxAge: 2 * 24 * 60 * 60 * 1000, // 48 hours (2 days)
       httpOnly: true, // Prevents JavaScript access
-      // secure: true,
-      // sameSite: 'None', // Allows cross-site requests
+      secure: true,
+      sameSite: 'None', // Allows cross-site requests
     },
   })
 );
