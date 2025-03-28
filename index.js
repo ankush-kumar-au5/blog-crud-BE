@@ -1,6 +1,5 @@
 const express = require('express');
 const session = require('express-session');
-const mongodb = require('mongodb');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const MongoStore = require('connect-mongo');
@@ -34,8 +33,8 @@ app.use(
     cookie: {
       maxAge: 2 * 24 * 60 * 60 * 1000, // 48 hours (2 days)
       httpOnly: true, // Prevents JavaScript access
-      secure: true,
-      sameSite: 'None', // Allows cross-site requests
+      // secure: true,
+      // sameSite: 'None', // Allows cross-site requests
     },
   })
 );
@@ -164,7 +163,7 @@ app.post('/api/post', async (req, res) => {
 
 // Delete post route
 app.delete('/api/delete/post', async (req, res) => {
-  const id = new mongodb.ObjectID(req.body.id); // post id
+  const id = new ObjectId(String(req.body.id)); // post id
   try {
     await posts.deleteOne({ _id: id });
     res.status(201).json({ success: true });
@@ -175,7 +174,7 @@ app.delete('/api/delete/post', async (req, res) => {
 
 // Update post route
 app.patch('/api/update/post', async (req, res) => {
-  const id = new mongodb.ObjectID(req.body.id); // post id
+  const id = new ObjectId(String(req.body.id)); // post id
   const { text } = req.body;
   try {
     await posts.updateOne({ _id: id }, { $set: { text } });
@@ -188,7 +187,7 @@ app.patch('/api/update/post', async (req, res) => {
 // Like post route
 app.post('/api/post/like', async (req, res) => {
   const { postId, isLiked } = req.body.data;
-  const _id = new mongodb.ObjectID(postId);
+  const _id = new ObjectId(String(postId));
   try {
     if (isLiked)
       await posts.updateOne(
@@ -205,7 +204,7 @@ app.post('/api/post/like', async (req, res) => {
 
 // Add comment route
 app.post('/api/add/comment', async (req, res) => {
-  const id = new mongodb.ObjectID(req.body.id); // post id
+  const id = new ObjectId(String(req.body.id)); // post id
   const data = { comment: req.body.comment, ...req.session.user };
   try {
     await posts.updateOne({ _id: id }, { $push: { comments: data } });
@@ -220,7 +219,7 @@ app.patch('/api/update/comment', async (req, res) => {
   try {
     const result = await posts.updateOne(
       {
-        _id: new ObjectId(postId),
+        _id: new ObjectId(String(postId)),
         'comments.userId': userId,
         'comments.comment': oldComment,
       },
@@ -243,7 +242,7 @@ app.patch('/api/update/comment', async (req, res) => {
 // Delete comment route
 app.delete('/api/delete/comment', async (req, res) => {
   const { comment, userId, postId } = req.body;
-  const _id = new ObjectId(postId);
+  const _id = new ObjectId(String(postId));
   try {
     await posts.updateOne(
       { _id },
