@@ -3,13 +3,18 @@ const session = require('express-session');
 const mongodb = require('mongodb');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const MongoStore = require('connect-mongo');
 
 const PORT = process.env.PORT || 5000;
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  'mongodb+srv://tradehere77:lNUD3RD6q6NhxtQJ@cluster0.jhuxfl9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 const app = express();
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: CLIENT_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   })
@@ -19,18 +24,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   session({
+    store: MongoStore.create({
+      mongoUrl: DATABASE_URL,
+      collectionName: 'sessions',
+    }),
     secret: 'alkdjfalks weqryqwery',
+    secure: false, // Secure only in production
+    httpOnly: true,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: { maxAge: 30 * 60 * 1000 }, // Session expires after 30 minutes (30 min * 60 sec * 1000 ms)
   })
 );
 
-// MongoDB Atlas connection URI
-const mongoURI = process.env.DATABASE_URL ||
-  'mongodb+srv://tradehere77:lNUD3RD6q6NhxtQJ@cluster0.jhuxfl9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-
-const client = new MongoClient(mongoURI, {
+const client = new MongoClient(DATABASE_URL, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
@@ -118,7 +125,12 @@ app.use((req, res, next) => {
   if (req?.session?.user) {
     return next();
   }
-  res.status(401).json({ success: false, message: 'User not authenticated or session expired' });
+  res
+    .status(401)
+    .json({
+      success: false,
+      message: 'User not authenticated or session expired',
+    });
 });
 
 // Logout route
