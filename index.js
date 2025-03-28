@@ -29,8 +29,9 @@ app.use(
       collectionName: 'sessions',
     }),
     secret: 'alkdjfalks weqryqwery',
-    secure: false, // Secure only in production
+    secure: true,
     httpOnly: true,
+    sameSite: "None",
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 30 * 60 * 1000 }, // Session expires after 30 minutes (30 min * 60 sec * 1000 ms)
