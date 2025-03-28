@@ -4,10 +4,12 @@ const mongodb = require('mongodb');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 
+const PORT = process.env.PORT || 5000;
+
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   })
@@ -36,6 +38,16 @@ const client = new MongoClient(mongoURI, {
   },
 });
 
+const shutdown = async (signal) => {
+  await client.close();
+  process.exit(0);
+};
+
+// Handle various termination signals
+['SIGINT', 'SIGTERM'].forEach((signal) => {
+  process.on(signal, () => shutdown(signal));
+});
+
 // MongoDB connection and collection initialization
 let users, posts;
 
@@ -56,7 +68,6 @@ connectToDatabase();
 // Helper function to handle MongoDB operations
 const handleMongoError = (err, res) => {
   if (err) {
-    console.error(err);
     return res
       .status(500)
       .json({ success: false, message: 'Database operation failed.' });
@@ -95,6 +106,19 @@ app.post('/api/signup', async (req, res) => {
   } catch (err) {
     handleMongoError(err, res);
   }
+});
+
+// Check if user is logged in
+app.get('/api/user/isLoggedIn', (req, res) => {
+  res.json({ success: !!req.session.user });
+});
+
+// Authentication Middleware
+app.use((req, res, next) => {
+  if (req?.session?.user) {
+    return next();
+  }
+  res.status(401).json({ success: false, message: 'User not authenticated or session expired' });
 });
 
 // Logout route
@@ -218,13 +242,7 @@ app.delete('/api/delete/comment', async (req, res) => {
   }
 });
 
-// Check if user is logged in
-app.get('/api/user/isLoggedIn', (req, res) => {
-  console.log('req.session.user', req.session.user);
-  res.json({ success: !!req.session.user });
-});
-
 // Start server
-app.listen(5000, () => {
-  console.log('Server running on port 5000');
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
