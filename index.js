@@ -32,7 +32,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 30 * 60 * 1000, // 30 minutes
+      maxAge: 2 * 24 * 60 * 60 * 1000, // 48 hours (2 days)
       httpOnly: true, // Prevents JavaScript access
       secure: true,
       sameSite: 'None', // Allows cross-site requests
