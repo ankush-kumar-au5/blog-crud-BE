@@ -29,12 +29,14 @@ app.use(
       collectionName: 'sessions',
     }),
     secret: 'alkdjfalks weqryqwery',
-    secure: true,
-    httpOnly: true,
-    sameSite: "None",
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 30 * 60 * 1000 }, // Session expires after 30 minutes (30 min * 60 sec * 1000 ms)
+    cookie: {
+      maxAge: 30 * 60 * 1000, // 30 minutes
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true, // Prevents JavaScript access
+      sameSite: 'None', // Allows cross-site requests
+    },
   })
 );
 
@@ -126,12 +128,10 @@ app.use((req, res, next) => {
   if (req?.session?.user) {
     return next();
   }
-  res
-    .status(401)
-    .json({
-      success: false,
-      message: 'User not authenticated or session expired',
-    });
+  res.status(401).json({
+    success: false,
+    message: 'User not authenticated or session expired',
+  });
 });
 
 // Logout route
