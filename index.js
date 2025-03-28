@@ -123,6 +123,12 @@ app.get('/api/user/isLoggedIn', (req, res) => {
   res.json({ success: !!req.session.user });
 });
 
+// Logout route
+app.post('/api/logout', (req, res) => {
+  req.session.destroy();
+  res.json({ message: 'Logout successful', success: true });
+});
+
 // Authentication Middleware
 app.use((req, res, next) => {
   if (req?.session?.user) {
@@ -132,12 +138,6 @@ app.use((req, res, next) => {
     success: false,
     message: 'User not authenticated or session expired',
   });
-});
-
-// Logout route
-app.post('/api/logout', (req, res) => {
-  req.session.destroy();
-  res.json({ message: 'Logout successful', success: true });
 });
 
 // Get all posts route
