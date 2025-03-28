@@ -33,9 +33,9 @@ app.use(
     saveUninitialized: false,
     cookie: {
       maxAge: 30 * 60 * 1000, // 30 minutes
-      secure: process.env.NODE_ENV === 'production',
       httpOnly: true, // Prevents JavaScript access
-      sameSite: 'None', // Allows cross-site requests
+      // secure: process.env.NODE_ENV === 'production',
+      // sameSite: 'None', // Allows cross-site requests
     },
   })
 );
