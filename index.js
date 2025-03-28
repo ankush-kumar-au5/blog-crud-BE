@@ -19,7 +19,7 @@ app.use(
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   })
 );
-
+app.set("trust proxy", 1); 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
