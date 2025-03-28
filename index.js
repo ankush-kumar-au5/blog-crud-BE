@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   })
@@ -27,7 +27,7 @@ app.use(
 );
 
 // MongoDB Atlas connection URI
-const mongoURI =
+const mongoURI = process.env.DATABASE_URL ||
   'mongodb+srv://tradehere77:lNUD3RD6q6NhxtQJ@cluster0.jhuxfl9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 const client = new MongoClient(mongoURI, {
